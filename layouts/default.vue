@@ -1,118 +1,177 @@
 <template>
-  <v-app dark>
-    <v-navigation-drawer
-      v-model="drawer"
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      fixed
-      app
-    >
-      <v-list>
-        <v-list-item
-          v-for="(item, i) in items"
-          :key="i"
-          :to="item.to"
-          router
-          exact
-        >
-          <v-list-item-action>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title v-text="item.title" />
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-    <v-app-bar
-      :clipped-left="clipped"
-      fixed
-      app
-    >
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <v-btn
-        icon
-        @click.stop="miniVariant = !miniVariant"
-      >
-        <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        @click.stop="clipped = !clipped"
-      >
-        <v-icon>mdi-application</v-icon>
-      </v-btn>
-      <v-btn
-        icon
-        @click.stop="fixed = !fixed"
-      >
-        <v-icon>mdi-minus</v-icon>
-      </v-btn>
+  <v-app id="app" dark>
+    <v-app-bar flat app fixed>
       <v-toolbar-title v-text="title" />
-      <v-spacer />
-      <v-btn
-        icon
-        @click.stop="rightDrawer = !rightDrawer"
+      <v-spacer></v-spacer>
+
+      <v-dialog
+        transition="dialog-top-transition"
+        max-width="600"
+        v-model="dialog"
       >
-        <v-icon>mdi-menu</v-icon>
-      </v-btn>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon>mdi-plus</v-icon>
+          </v-btn>
+        </template>
+
+        <v-card>
+          <v-toolbar dark>Nueva tarea</v-toolbar>
+          <v-card-text>
+            <v-form ref="form" v-model="valid" lazy-validation>
+              <v-text-field
+                v-model="taskModel.title"
+                label="Título"
+                required
+                :rules="[rules.required]"
+              ></v-text-field>
+
+              <v-radio-group v-model="isCompleted" row>
+                <v-radio label="Completada" :value="1"></v-radio>
+                <v-radio label="No completada" :value="0"></v-radio>
+              </v-radio-group>
+              <v-menu
+                v-model="menuDate"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    v-model="date"
+                    label="Fecha"
+                    prepend-icon="mdi-calendar"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                    clearable
+                  ></v-text-field>
+                </template>
+
+                <v-date-picker
+                  color="primary"
+                  :min="minDate"
+                  v-model="date"
+                  @input="menuDate = false"
+                ></v-date-picker>
+              </v-menu>
+              <v-textarea
+                label="Comentarios"
+                v-model="taskModel.comments"
+                outlined
+                dense
+                counter
+                color="primary"
+                prepend-inner-icon="mdi-card-text-outline"
+                autocomplete="off"
+                no-resize
+                height="100"
+              ></v-textarea>
+              <v-textarea
+                v-model="taskModel.description"
+                label="Descripción"
+                outlined
+                dense
+                counter
+                color="primary"
+                prepend-inner-icon="mdi-card-text-outline"
+                autocomplete="off"
+                no-resize
+                height="100"
+              ></v-textarea>
+              <v-text-field
+                v-model="taskModel.tags"
+                label="Tags"
+                required
+              ></v-text-field>
+            </v-form>
+          </v-card-text>
+          <v-card-actions class="justify-end">
+            <v-btn text color="success" @click="sendTask()">Aceptar</v-btn>
+            <v-btn text color="error" @click="closeDialog()">Cerrar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-app-bar>
-    <v-main>
-      <v-container>
+    <v-main class="overflow-hidden">
+      <v-container class="overflow-hidden">
         <Nuxt />
       </v-container>
     </v-main>
-    <v-navigation-drawer
-      v-model="rightDrawer"
-      :right="right"
-      temporary
-      fixed
-    >
-      <v-list>
-        <v-list-item @click.native="right = !right">
-          <v-list-item-action>
-            <v-icon light>
-              mdi-repeat
-            </v-icon>
-          </v-list-item-action>
-          <v-list-item-title>Switch drawer (click me)</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-    <v-footer
-      :absolute="!fixed"
-      app
-    >
-      <span>&copy; {{ new Date().getFullYear() }}</span>
-    </v-footer>
   </v-app>
 </template>
 
-<script>
-export default {
-  name: 'DefaultLayout',
-  data () {
-    return {
-      clipped: false,
-      drawer: false,
-      fixed: false,
-      items: [
-        {
-          icon: 'mdi-apps',
-          title: 'Welcome',
-          to: '/'
-        },
-        {
-          icon: 'mdi-chart-bubble',
-          title: 'Inspire',
-          to: '/inspire'
-        }
-      ],
-      miniVariant: false,
-      right: true,
-      rightDrawer: false,
-      title: 'Vuetify.js'
+<script lang="ts">
+import { Ref, Watch } from "nuxt-property-decorator";
+import Vue from "vue";
+import Component from "vue-class-component";
+import { namespace } from "vuex-class";
+import { CreateTask } from "~/models/createTask";
+import { VForm } from "@/utils/types";
+const Task = namespace("modules/task");
+@Component
+export default class Default extends Vue {
+  @Ref("form") readonly form!: VForm;
+
+  @Watch("isCompleted")
+  onChildChanged() {
+    if (this.isCompleted == null) {
+      this.isCompleted = 0;
     }
   }
+
+  @Task.Action
+  private createTask!: (task: CreateTask) => Promise<void>;
+
+  public taskModel = {} as CreateTask;
+
+  public rules = {
+    required: (v: string): string | boolean => !!v || "Campo requerido",
+    requireda: (v: string): string | boolean => !!v || "c",
+  };
+
+  async sendTask() {
+    if ((this.$refs.form as Vue & { validate: () => boolean }).validate()) {
+      this.taskModel.due_date = this.date;
+      this.taskModel.is_completed = this.isCompleted;
+      // await this.createTask(this.taskModel);
+      this.form.resetValidation();
+      this.resetForm();
+      this.dialog = false;
+    }
+  }
+
+  closeDialog() {
+    this.form.resetValidation();
+    this.resetForm();
+    this.dialog = false;
+  }
+
+  resetForm() {
+    this.taskModel = {
+      title: "",
+      comments: "",
+      tags: "",
+      description: "",
+      is_completed: 0,
+      due_date: "",
+    };
+  }
+
+  public title = "To Do";
+  public isCompleted = 0;
+  public dialog = false;
+  public valid = true;
+  public menuDate = false;
+  public date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+    .toISOString()
+    .substr(0, 10);
+  public minDate = new Date(Date.now() - 8640000).toISOString().substr(0, 10);
 }
 </script>
+
+
+<style scoped>
+</style>

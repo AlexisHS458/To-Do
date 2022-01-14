@@ -31,6 +31,7 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    '@/plugins/axios'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -42,11 +43,22 @@ export default {
     '@nuxt/typescript-build',
     // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify',
+    '@nuxtjs/dotenv',
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    '@nuxtjs/axios',
   ],
+
+  axios:{
+    baseURL: 'https://ecsdevapi.nextline.mx/vdev/tasks-challenge/',
+    headers: {
+      common: {
+        'Authorization' : 'Bearer e864a0c9eda63181d7d65bc73e61e3dc6b74ef9b82f7049f1fc7d9fc8f29706025bd271d1ee1822b15d654a84e1a0997b973a46f923cc9977b3fcbb064179ecd'
+      }
+    }
+  },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {

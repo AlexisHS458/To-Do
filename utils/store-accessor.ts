@@ -1,11 +1,11 @@
 import { Store } from "vuex";
 import { getModule } from "vuex-module-decorators";
-import example from "@/store/modules/example";
+import task from "~/store/modules/task";
 
-let exampleStore: example;
+let taskStore: task;
 
 function initialiseStores(store: Store<any>): void {
-  exampleStore = getModule(example, store);
+  taskStore = getModule(task, store);
 }
 
-export { initialiseStores, exampleStore };
+export { initialiseStores, taskStore };
