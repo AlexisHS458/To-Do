@@ -1,4 +1,4 @@
-import { CreateTask } from "~/models/createTask";
+import { CreatedTask } from "~/models/createdTask";
 import { Task } from "~/models/Task";
 import { PutTask } from "~/models/putTask";
 //import axios from "~/plugins/axios";
@@ -6,12 +6,12 @@ import { PutTask } from "~/models/putTask";
 //const axios = require("axios").default;
 
 class TaskService {
-  async createTask(task: CreateTask) {
+  async createTask(task: CreatedTask) {
     const responseTask = await window.$nuxt.$axios.$post("/tasks", {
       token:
         "e864a0c9eda63181d7d65bc73e61e3dc6b74ef9b82f7049f1fc7d9fc8f29706025bd271d1ee1822b15d654a84e1a0997b973a46f923cc9977b3fcbb064179ecd",
       title: task.title,
-      is_completed: task.is_completed,
+      is_completed: task.is_completed === 1 ? 0 : 1,
       due_date: task.due_date,
       comments: task.comments,
       description: task.description,

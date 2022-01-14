@@ -2,18 +2,15 @@
   <v-card>
     <v-list two-line class="scrollable" v-if="!isLoading">
       <v-list-item-group multiple>
-        <template v-for="task in tasks">
+        <template v-for="task in tasksClone">
           <v-hover :key="task.id" a>
             <v-list-item :to="`${task.id}`" slot-scope="{ hover }">
-              <!-- <template v-slot:default="{ active }">
-                <v-list-item-action>
-                  <v-checkbox
-                    :input-value="active"
-                    color="primary"
-                  ></v-checkbox>
-                </v-list-item-action> -->
               <v-list-item-action>
-                <v-checkbox @click.prevent></v-checkbox>
+                <v-checkbox
+                  @change="changeStatus($event, task)"
+                  @click.prevent
+                  v-model="task.is_completed"
+                ></v-checkbox>
               </v-list-item-action>
               <v-list-item-content>
                 <v-list-item-title v-text="task.title"></v-list-item-title>
@@ -75,6 +72,8 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { namespace } from "vuex-class";
 import { PutTask } from "~/models/putTask";
+import { ShortTask } from "~/models/shortTask";
+import { Task } from "~/models/Task";
 const Task = namespace("modules/task");
 
 @Component
@@ -85,8 +84,8 @@ export default class Tasks extends Vue {
   @Task.Action
   private deleteTask!: (TaskId: string) => Promise<void>;
 
-  @Task.State("dataGetTasks")
-  private tasks!: "";
+  @Task.State("taskList")
+  private tasks!: ShortTask[];
 
   @Task.Action
   private putTask!: (putTask: PutTask) => Promise<void>;
@@ -98,8 +97,26 @@ export default class Tasks extends Vue {
     required: (v: string): string | boolean => !!v || "Campo requerido",
   };
 
+  public tasksClone: ShortTask[] = [];
+
+  changeStatus(isCompleted: number, task: ShortTask) {
+    const putTask: PutTask = {
+      ...task,
+      is_completed: isCompleted,
+      token:
+        "e864a0c9eda63181d7d65bc73e61e3dc6b74ef9b82f7049f1fc7d9fc8f29706025bd271d1ee1822b15d654a84e1a0997b973a46f923cc9977b3fcbb064179ecd",
+    };
+    this.putTask(putTask);
+  }
+
   async mounted() {
     await this.getTasks();
+    //Query inveritda o put
+    this.tasksClone = this.tasks.map((tasks) => {
+      return { ...tasks, is_completed: tasks.is_completed === 1 ? 0 : 1 };
+    });
+
+    console.log(this.tasksClone);
   }
 }
 </script>

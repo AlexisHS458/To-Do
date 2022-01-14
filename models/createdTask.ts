@@ -1,6 +1,6 @@
 import { Task } from "./Task";
 
-export interface CreateTask extends Partial<Task> {
+export interface CreatedTask extends Partial<Task> {
   title: string;
   is_completed: number;
   due_date?: string;

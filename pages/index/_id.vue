@@ -77,9 +77,7 @@
       </v-progress-circular>
     </div>
     <v-card-actions class="justify-end">
-      <v-btn text color="success" @click="updateTask()" :disabled="visibility"
-        >Actualizar</v-btn
-      >
+      <v-btn text color="success" @click="updateTask()">Actualizar</v-btn>
       <v-btn text color="error" @click="cancel()">Cancelar</v-btn>
     </v-card-actions>
   </v-card>
@@ -128,7 +126,7 @@ export default class TaskClass extends Vue {
   @Task.Action
   private putTask!: (putTask: PutTask) => Promise<void>;
 
-  @Task.State("dataGetTask")
+  @Task.State("selectedTask")
   private task!: Task;
 
   @Task.Getter("isLoadingTask")

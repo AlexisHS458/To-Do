@@ -1,192 +1,192 @@
 import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators";
-import { CreateTask } from "~/models/createTask";
+import { CreatedTask } from "~/models/createdTask";
 import { Task } from "~/models/Task";
 import { PutTask } from "~/models/putTask";
-
 import TaskService from "~/services/task.service";
-
 import { store } from "..";
+import { ShortTask } from "~/models/shortTask";
+import Vue from "vue";
 
 @Module({ namespaced: true, name: "TaskModule", store })
 export default class TaskModule extends VuexModule {
-  public status = {
-    loadiingCreateTask: false,
+  public status: any = {
+    loadingCreateTask: false,
     loadingGetTasks: false,
-    loadingDeleteTasks: false,
+    loadingDeleteTask: false,
     loadingGetTask: false,
     loadingPutTask: false,
   };
 
-  public error = "";
-  public data = "";
-  public dataGetTasks = "";
-  public errorGetTasks = "";
-  public dataDeleteTask = "";
-  public erroDeleteTask = "";
-  public dataGetTask?: Task = undefined;
-  public errorGetTask = "";
-  public errorPutTask = "";
-  public dataPutTask?: PutTask = undefined;
+  public errors: any = {
+    errorCreateTask: "",
+    errorGetTasks: "",
+    erroDeleteTask: "",
+    errorGetTask: "",
+    errorPutTask: "",
+  };
+
+  public taskList?: ShortTask[] = undefined;
+  public selectedTask?: Task = undefined;
 
   @Mutation
-  public setCreateText(status: boolean): void {
-    this.status.loadiingCreateTask = status;
+  public setLoading(data: { loadingName: string; status: boolean }): void {
+    this.status[data.loadingName] = data.status;
   }
 
   @Mutation
-  public setDataCreateTask(data: any): void {
-    this.data = data;
+  public setError(data: { errorName: string; message: string }): void {
+    this.status[data.errorName] = data.message;
   }
 
   @Mutation
-  public setErrorCreateText(error: any): void {
-    this.error = error;
+  public setTaskList(data: ShortTask[]): void {
+    this.taskList = data;
   }
 
   @Mutation
-  public setGetTasks(status: boolean): void {
-    this.status.loadingGetTasks = status;
+  public setSelectedTask(data: Task): void {
+    this.selectedTask = data;
   }
 
   @Mutation
-  public setDataGetTasks(data: any): void {
-    this.dataGetTasks = data;
-  }
-
-  @Mutation
-  public setErrorGetTasks(error: any): void {
-    this.errorGetTasks = error;
-  }
-
-  @Mutation
-  public setGetTask(status: boolean): void {
-    this.status.loadingGetTask = status;
-  }
-
-  @Mutation
-  public setDataGetTask(data: Task): void {
-    console.log(data);
-
-    this.dataGetTask = data;
-  }
-
-  @Mutation
-  public setErrorGetTask(error: any): void {
-    this.errorGetTask = error;
-  }
-
-  @Mutation
-  public setDeleteTask(status: boolean): void {
-    this.status.loadingDeleteTasks = status;
-  }
-
-  @Mutation
-  public setDataDeleteTasks(data: any): void {
-    this.dataDeleteTask = data;
-  }
-
-  @Mutation
-  public setErrorDeleteTask(error: any): void {
-    this.erroDeleteTask = error;
-  }
-
-  @Mutation
-  public setPutTask(status: boolean): void {
-    this.status.loadingPutTask = status;
-  }
-
-  @Mutation
-  public setDataPutTasks(data: PutTask): void {
-    this.dataPutTask = data;
-  }
-
-  @Mutation
-  public setErrorPutTask(error: any): void {
-    this.errorPutTask = error;
+  public addTask(data: Task): void {
+    if (this.taskList) {
+      this.taskList = [...this.taskList, data];
+    }
+    // this.taskList?.push(data);
   }
 
   @Action({ rawError: true })
-  public async createTask(task: CreateTask): Promise<void> {
-    //console.log(task);
-
+  public async createTask(task: CreatedTask): Promise<void> {
+    this.context.commit("setLoading", {
+      loadingName: "loadingCreateTask",
+      status: true,
+    });
     return await TaskService.createTask(task)
-      .then((data: any) => {
-        //   console.log(data);
-        this.context.commit("setCreateText", true);
-        this.context.commit("setDataCreateTask", data);
-        this.context.commit("setCreateText", false);
+      .then((data: Task) => {
+        this.context.commit("addTask", data);
+        this.context.commit("setLoading", {
+          loadingName: "loadingCreateTask",
+          status: false,
+        });
       })
       .catch((error: any) => {
-        console.log("Entro a vuex error");
-        this.context.commit("setCreateText", true);
-        this.context.commit("setErrorCreateText", error);
-        this.context.commit("setCreateText", false);
+        this.context.commit("setError", {
+          errorName: "errorCreateTask",
+          message: error,
+        });
+        this.context.commit("setLoading", {
+          loadingName: "loadingCreateTask",
+          status: false,
+        });
       });
   }
 
   @Action({ rawError: true })
   public async getTasks(): Promise<void> {
-    this.context.commit("setGetTasks", true);
+    this.context.commit("setLoading", {
+      loadingName: "loadingGetTasks",
+      status: true,
+    });
     return await TaskService.getTasks()
-      .then((data: any) => {
-        this.context.commit("setDataGetTasks", data);
-        this.context.commit("setGetTasks", false);
+      .then((data: ShortTask[]) => {
+        this.context.commit("setTaskList", data);
+        this.context.commit("setLoading", {
+          loadingName: "loadingGetTasks",
+          status: false,
+        });
       })
       .catch((error: any) => {
         console.log("Entro a vuex error");
         // this.context.commit("setGetTasks", true);
-        this.context.commit("setErrorGetTasks", error);
-        this.context.commit("setGetTasks", false);
+        this.context.commit("setError", {
+          errorName: "errorGetTasks",
+          message: error,
+        });
+        this.context.commit("setLoading", {
+          loadingName: "loadingGetTasks",
+          status: false,
+        });
       });
   }
 
   @Action({ rawError: true })
   public async getTask(taskId: string): Promise<void> {
-    console.log("Hola");
-
-    this.context.commit("setGetTask", true);
+    this.context.commit("setLoading", {
+      loadingName: "loadingGetTask",
+      status: true,
+    });
     return await TaskService.getTask(taskId)
       .then((data: Task) => {
-        this.context.commit("setDataGetTask", data);
-        this.context.commit("setGetTask", false);
+        this.context.commit("setSelectedTask", data);
+        this.context.commit("setLoading", {
+          loadingName: "loadingGetTask",
+          status: false,
+        });
       })
       .catch((error: any) => {
         console.log("Entro a vuex error");
         // this.context.commit("setGetTask", true);
-        this.context.commit("setErrorGetTask", error);
-        this.context.commit("setGetTask", false);
+        this.context.commit("setError", {
+          errorName: "errorGetTask",
+          message: error,
+        });
+        this.context.commit("setLoading", {
+          loadingName: "loadingGetTask",
+          status: false,
+        });
       });
   }
 
   @Action({ rawError: true })
   public async deleteTask(taskId: string): Promise<void> {
+    this.context.commit("setLoading", {
+      loadingName: "loadingDeleteTask",
+      status: true,
+    });
     return await TaskService.deleteTask(taskId)
       .then((data: any) => {
-        console.log(data);
-        this.context.commit("setDeleteTask", true);
-        this.context.commit("setDataDeleteTasks", data);
-        this.context.commit("setDeleteTask", false);
+        //this.context.commit("setDataDeleteTasks", data);
+        this.context.commit("setLoading", {
+          loadingName: "loadingDeleteTask",
+          status: false,
+        });
       })
       .catch((error: any) => {
-        console.log("Entro a vuex error");
-        this.context.commit("setDeleteTask", true);
-        this.context.commit("setErrorDeleteTask", error);
-        this.context.commit("setDeleteTask", false);
+        this.context.commit("setError", {
+          errorName: "erroDeleteTask",
+          message: error,
+        });
+        this.context.commit("setLoading", {
+          loadingName: "loadingDeleteTask",
+          status: false,
+        });
       });
   }
 
   @Action({ rawError: true })
   public async putTask(task: Task): Promise<void> {
-    this.context.commit("setPutTask", true);
+    this.context.commit("setLoading", {
+      loadingName: "loadingPutTask",
+      status: true,
+    });
     return await TaskService.putTask(task)
       .then((data: PutTask) => {
-        console.log(data);
-        this.context.commit("setDataPutTasks", data);
-        this.context.commit("setPutTask", false);
+        // this.context.dispatch("getTasks");
+        this.context.commit("setLoading", {
+          loadingName: "loadingPutTask",
+          status: false,
+        });
       })
       .catch((error: any) => {
-        this.context.commit("setErrorPutTask", error);
-        this.context.commit("setPutTask", false);
+        this.context.commit("setError", {
+          errorName: "errorPutTask",
+          message: error,
+        });
+        this.context.commit("setLoading", {
+          loadingName: "loadingPutTask",
+          status: false,
+        });
       });
   }
 

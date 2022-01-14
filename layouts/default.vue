@@ -108,7 +108,7 @@ import { Ref, Watch } from "nuxt-property-decorator";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { namespace } from "vuex-class";
-import { CreateTask } from "~/models/createTask";
+import { CreatedTask } from "~/models/createdTask";
 import { VForm } from "@/utils/types";
 const Task = namespace("modules/task");
 @Component
@@ -123,9 +123,9 @@ export default class Default extends Vue {
   }
 
   @Task.Action
-  private createTask!: (task: CreateTask) => Promise<void>;
+  private createTask!: (task: CreatedTask) => Promise<void>;
 
-  public taskModel = {} as CreateTask;
+  public taskModel = {} as CreatedTask;
 
   public rules = {
     required: (v: string): string | boolean => !!v || "Campo requerido",
@@ -136,7 +136,7 @@ export default class Default extends Vue {
     if ((this.$refs.form as Vue & { validate: () => boolean }).validate()) {
       this.taskModel.due_date = this.date;
       this.taskModel.is_completed = this.isCompleted;
-      // await this.createTask(this.taskModel);
+      await this.createTask(this.taskModel);
       this.form.resetValidation();
       this.resetForm();
       this.dialog = false;
