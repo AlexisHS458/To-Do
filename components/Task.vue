@@ -3,6 +3,7 @@
     <v-list-item :to="`${task.id}`" slot-scope="{ hover }">
       <v-list-item-action>
         <v-checkbox
+          color="secondary"
           @change="changeStatus($event, task)"
           @click.prevent
           v-model="task.is_completed"
@@ -48,7 +49,6 @@
           </template>
         </v-dialog>
       </v-list-item-action>
-      <!--   </template> -->
     </v-list-item>
   </v-hover>
 </template>

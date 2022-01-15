@@ -1,12 +1,16 @@
 <template>
   <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialog">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn icon v-bind="attrs" v-on="on">
+      <v-btn dark icon v-bind="attrs" v-on="on">
         <v-icon>mdi-plus</v-icon>
       </v-btn>
     </template>
     <v-card>
-      <v-toolbar dark>Nueva tarea</v-toolbar>
+      <v-toolbar color="primary"
+        ><v-toolbar-title class="white--text"
+          >Crear nueva tarea</v-toolbar-title
+        ></v-toolbar
+      >
       <v-card-text>
         <v-form ref="form" v-model="valid" lazy-validation>
           <v-text-field

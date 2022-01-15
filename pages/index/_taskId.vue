@@ -7,7 +7,6 @@
     class="flex-column d-flex"
   >
     <v-card-text>
-      <!--   <v-container v-if="!isLoadingTask" class="py-4 px-4" fluid> -->
       <v-form ref="form" v-model="valid" lazy-validation>
         <v-text-field
           required

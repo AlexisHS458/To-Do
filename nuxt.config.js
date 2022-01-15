@@ -32,7 +32,7 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-    '@/plugins/axios'
+    '@/plugins/axios',{src:"@/plugins/darkMode", mode: 'client'}
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -53,29 +53,41 @@ export default {
   ],
 
   axios:{
-    baseURL: 'https://ecsdevapi.nextline.mx/vdev/tasks-challenge/',
+    baseURL: process.env.BASE_URL,
     headers: {
       common: {
-        'Authorization' : 'Bearer e864a0c9eda63181d7d65bc73e61e3dc6b74ef9b82f7049f1fc7d9fc8f29706025bd271d1ee1822b15d654a84e1a0997b973a46f923cc9977b3fcbb064179ecd'
+        'Authorization' : 'Bearer ' + process.env.TOKEN_SECRET
       }
     }
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
-    customVariables: ['~/assets/variables.scss'],
+
     theme: {
-      dark: true,
+      dark: false,
+      
       themes: {
+        
         dark: {
-          primary: colors.blue.darken2,
-          accent: colors.grey.darken3,
-          secondary: colors.amber.darken3,
+          primary: colors.grey.darken4,
+         
+          secondary: colors.blue.darken3,
           info: colors.teal.lighten1,
           warning: colors.amber.base,
           error: colors.deepOrange.accent4,
           success: colors.green.accent3
-        }
+        },
+        light:{
+          primary: colors.indigo,
+         
+          secondary: colors.blue.darken3,
+          info: colors.teal.lighten1,
+          warning: colors.amber.lighten1,
+          error: colors.red.lighten1,
+          success: colors.green.lighten1
+        },
+      
       }
     }
   },
