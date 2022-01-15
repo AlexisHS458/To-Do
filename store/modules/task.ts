@@ -1,7 +1,7 @@
 import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators";
 import { CreatedTask } from "~/models/createdTask";
 import { Task } from "~/models/Task";
-import { PutTask } from "~/models/putTask";
+
 import TaskService from "~/services/task.service";
 import { store } from "..";
 import { ShortTask } from "~/models/shortTask";
@@ -11,7 +11,7 @@ import Vue from "vue";
 export default class TaskModule extends VuexModule {
   public status: any = {
     loadingCreateTask: false,
-    loadingGetTasks: false,
+    loadingGetTasks: true,
     loadingDeleteTask: false,
     loadingGetTask: false,
     loadingPutTask: false,
@@ -25,8 +25,15 @@ export default class TaskModule extends VuexModule {
     errorPutTask: "",
   };
 
+  public statusDrawerNavigator = false;
   public taskList?: ShortTask[] = undefined;
   public selectedTask?: Task = undefined;
+
+  @Mutation
+  public setDrawerNavigator(status: boolean): void {
+    console.log(status);
+    this.statusDrawerNavigator = status;
+  }
 
   @Mutation
   public setLoading(data: { loadingName: string; status: boolean }): void {
@@ -40,7 +47,7 @@ export default class TaskModule extends VuexModule {
 
   @Mutation
   public setTaskList(data: ShortTask[]): void {
-    this.taskList = data;
+    this.taskList = data.reverse();
   }
 
   @Mutation
@@ -51,9 +58,34 @@ export default class TaskModule extends VuexModule {
   @Mutation
   public addTask(data: Task): void {
     if (this.taskList) {
-      this.taskList = [...this.taskList, data];
+      this.taskList.unshift(data);
     }
-    // this.taskList?.push(data);
+  }
+
+  @Mutation
+  /**
+   * name
+   */
+  public removeTask(data: { message: string; taskId: string }) {
+    if (this.taskList) {
+      const index = this.taskList.findIndex((task) => {
+        return task.id == data.taskId;
+      });
+      Vue.delete(this.taskList, index);
+    }
+  }
+
+  @Mutation
+  /**
+   * name
+   */
+  public updateTask(data: { task: Task; message: string }) {
+    if (this.taskList) {
+      const index = this.taskList.findIndex((task) => {
+        return task.id == data.task.id;
+      });
+      Vue.set(this.taskList, index, data.task);
+    }
   }
 
   @Action({ rawError: true })
@@ -145,8 +177,8 @@ export default class TaskModule extends VuexModule {
       status: true,
     });
     return await TaskService.deleteTask(taskId)
-      .then((data: any) => {
-        //this.context.commit("setDataDeleteTasks", data);
+      .then((message: string) => {
+        this.context.commit("removeTask", { message: message, taskId: taskId });
         this.context.commit("setLoading", {
           loadingName: "loadingDeleteTask",
           status: false,
@@ -171,8 +203,11 @@ export default class TaskModule extends VuexModule {
       status: true,
     });
     return await TaskService.putTask(task)
-      .then((data: PutTask) => {
-        // this.context.dispatch("getTasks");
+      .then((data: any) => {
+        this.context.commit("updateTask", {
+          task: data.task,
+          message: data.detail,
+        });
         this.context.commit("setLoading", {
           loadingName: "loadingPutTask",
           status: false,
@@ -188,6 +223,15 @@ export default class TaskModule extends VuexModule {
           status: false,
         });
       });
+  }
+
+  @Action({ rawError: true })
+  public toggleStatusDrawerNavigator(): void {
+    console.log("Hola");
+
+    console.log(!this.statusDrawerNavigator);
+
+    this.context.commit("setDrawerNavigator", !this.statusDrawerNavigator);
   }
 
   get isLoading(): boolean {

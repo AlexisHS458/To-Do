@@ -1,25 +1,24 @@
 <template>
-  <v-card rounded="lg">
-    <v-card-text v-if="!isLoadingTask">
+  <v-card
+    v-if="!isLoadingTask"
+    color="transparent"
+    flat
+    height="100"
+    class="flex-column d-flex"
+  >
+    <v-card-text>
+      <!--   <v-container v-if="!isLoadingTask" class="py-4 px-4" fluid> -->
       <v-form ref="form" v-model="valid" lazy-validation>
-        {{ visibility }}
         <v-text-field
           required
           v-model="taskUpdate.title"
           label="Titulo"
         ></v-text-field>
-        <!-- 
-        <v-radio-group v-model="isCompleted" row>
-          <v-radio label="Completada" :value="1"></v-radio>
-          <v-radio label="No completada" :value="0"></v-radio>
-        </v-radio-group> -->
         <v-menu
           v-model="menuDate"
           :close-on-content-click="false"
-          :nudge-right="40"
           transition="scale-transition"
           offset-y
-          min-width="auto"
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
@@ -70,17 +69,18 @@
           v-model="taskUpdate.tags"
         ></v-text-field>
       </v-form>
+      <!--  </v-container> -->
     </v-card-text>
-
-    <div v-else class="div-progress-circular">
-      <v-progress-circular indeterminate :size="120" :width="4" color="primary">
-      </v-progress-circular>
-    </div>
-    <v-card-actions class="justify-end">
+    <v-card-actions class="justify-end flex-grow-0 flex-shrink-1">
       <v-btn text color="success" @click="updateTask()">Actualizar</v-btn>
       <v-btn text color="error" @click="cancel()">Cancelar</v-btn>
     </v-card-actions>
   </v-card>
+
+  <div v-else class="progress-circular">
+    <v-progress-circular indeterminate :size="60" :width="4" color="primary">
+    </v-progress-circular>
+  </div>
 </template>
 
 <script lang="ts">
@@ -94,30 +94,9 @@ const Task = namespace("modules/task");
 
 @Component
 export default class TaskClass extends Vue {
-  @Watch("$route.params.id")
+  @Watch("$route.params.taskId")
   onChildChanged() {
-    console.log("Entro watch");
-
     this.infoTask();
-  }
-
-  @Watch("task")
-  onChildTask() {
-    this.taskUpdate = { ...this.task };
-    if (this.taskUpdate !== this.taskUpdate) {
-      console.log("Entro if");
-
-      this.visibility = true;
-    }
-  }
-
-  @Watch("taskUpdate")
-  onChildUpdateTask() {
-    if (this.taskUpdate !== this.task) {
-      console.log("Entro if");
-
-      this.visibility = true;
-    }
   }
 
   @Task.Action
@@ -139,17 +118,17 @@ export default class TaskClass extends Vue {
   public minDate = new Date(Date.now() - 8640000).toISOString().substr(0, 10);
 
   async created() {
+    console.log(this.$route.params.taskId);
+
     await this.infoTask();
-    this.taskUpdate = { ...this.task };
   }
 
   async infoTask() {
-    await this.getTask(this.$route.params.id);
+    await this.getTask(this.$route.params.taskId);
+    this.taskUpdate = { ...this.task };
   }
 
   async updateTask() {
-    console.log(this.taskUpdate);
-
     await this.putTask(this.taskUpdate);
   }
 
@@ -160,7 +139,12 @@ export default class TaskClass extends Vue {
 </script>
 
 <style scoped>
-.v-card-title {
-  padding-bottom: 0px !important;
+.progress-circular {
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

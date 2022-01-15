@@ -17,7 +17,7 @@ class TaskService {
       description: task.description,
       tags: task.tags,
     });
-    return responseTask;
+    return responseTask.task;
   }
 
   async getTasks() {
@@ -51,11 +51,13 @@ class TaskService {
         },
       }
     );
+    //  console.log(responseDeleteTask);
+
     return responseDeleteTask;
   }
 
   async putTask(task: PutTask) {
-    console.log(task);
+    //  console.log(task);
 
     const responsePutTask = await window.$nuxt.$axios.$put(
       "/tasks/" + task.id,
@@ -64,9 +66,22 @@ class TaskService {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        params: task,
+        params: {
+          title: task.title,
+          is_completed: task.is_completed === 1 ? 0 : 1,
+          due_date: task.due_date,
+          comments: task.comments,
+          description: task.description,
+          tags: task.tags,
+          created_at: task.created_at,
+          id: task.id,
+          token: task.token,
+          updated_at: task.updated_at,
+        },
       }
     );
+    console.log(responsePutTask);
+
     return responsePutTask;
   }
 }
