@@ -12,7 +12,7 @@
         class="d-lg-none mr-4"
         >mdi-clipboard-edit-outline</v-icon
       >
-      <DarkModeSwitch @switched="toggleDarkMode()" :initialState="darkMode" />
+      <DarkModeSwitch @switched="toggleDarkMode()" :initialState="!darkMode" />
     </v-app-bar>
 
     <v-navigation-drawer app clipped right v-model="drawerNavigator">
@@ -41,33 +41,13 @@ export default class Index extends Vue {
 
   toggleDarkMode() {
     this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
-    localStorage.setItem("dark_theme", this.$vuetify.theme.dark.toString());
     this.darkMode = !this.darkMode;
-  }
-
-  mounted() {
-    const theme = localStorage.getItem("dark_theme");
-    console.log(theme);
-
-    if (theme) {
-      if (theme == "true") {
-        this.darkMode = this.$vuetify.theme.dark = true;
-      } else {
-        this.darkMode = this.$vuetify.theme.dark = false;
-      }
-    }
   }
 
   public drawerNavigator = null;
 }
 </script>
 
-<style  scoped>
-/* nav {
-  top: 64px !important;
-  max-height: calc(100% - 64px) !important;
-} */
-</style>
 
 
 
