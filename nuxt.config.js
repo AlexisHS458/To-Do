@@ -44,7 +44,7 @@ export default {
     '@nuxt/typescript-build',
     // https://go.nuxtjs.dev/vuetify
     '@nuxtjs/vuetify',
-    '@nuxtjs/dotenv',
+
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -63,7 +63,6 @@ export default {
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
-
     theme: {
       dark: false,
       
@@ -94,5 +93,10 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-  }
+  },
+
+  env: {
+    BASE_URL: process.env.BASE_URL,
+    TOKEN_SECRET: process.env.TOKEN_SECRET,
+  },
 }
