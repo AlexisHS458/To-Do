@@ -8,10 +8,6 @@
   </v-app>
 </template>
 
-<style scoped>
-.padding-main {
-  padding-top: 64px !important;
-}
-</style>
+
 
 

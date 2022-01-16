@@ -32,7 +32,7 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-    '@/plugins/axios',{src:"@/plugins/darkMode", mode: 'client'}
+   {src:"@/plugins/darkMode", mode: 'client'}
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -52,6 +52,7 @@ export default {
     '@nuxtjs/axios',
   ],
 
+  //Configuración de axios
   axios:{
     baseURL: process.env.BASE_URL,
     headers: {
@@ -65,9 +66,7 @@ export default {
   vuetify: {
     theme: {
       dark: false,
-      
       themes: {
-        
         dark: {
           primary: colors.grey.darken4,
          
@@ -86,7 +85,6 @@ export default {
           error: colors.red.lighten1,
           success: colors.green.lighten1
         },
-      
       }
     }
   },
@@ -95,6 +93,7 @@ export default {
   build: {
   },
 
+  //Configuración de variables de entorno
   env: {
     BASE_URL: process.env.BASE_URL,
     TOKEN_SECRET: process.env.TOKEN_SECRET,

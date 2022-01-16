@@ -1,7 +1,7 @@
 <template>
   <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialog">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn dark icon v-bind="attrs" v-on="on">
+      <v-btn dark class="mr-4" icon v-bind="attrs" v-on="on">
         <v-icon>mdi-plus</v-icon>
       </v-btn>
     </template>
@@ -18,22 +18,26 @@
             label="Título"
             required
             :rules="[rules.required]"
+            color="secondary"
           ></v-text-field>
 
           <v-radio-group v-model="isCompleted" row>
-            <v-radio label="Completada" :value="1"></v-radio>
-            <v-radio label="No completada" :value="0"></v-radio>
+            <v-radio color="secondary" label="Completada" :value="1"></v-radio>
+            <v-radio
+              color="secondary"
+              label="No completada"
+              :value="0"
+            ></v-radio>
           </v-radio-group>
           <v-menu
             v-model="menuDate"
             :close-on-content-click="false"
-            :nudge-right="40"
             transition="scale-transition"
             offset-y
-            min-width="auto"
           >
             <template v-slot:activator="{ on, attrs }">
               <v-text-field
+                color="secondary"
                 v-model="date"
                 label="Fecha"
                 prepend-icon="mdi-calendar"
@@ -56,8 +60,7 @@
             v-model="taskModel.comments"
             outlined
             dense
-            counter
-            color="primary"
+            color="secondary"
             prepend-inner-icon="mdi-card-text-outline"
             autocomplete="off"
             no-resize
@@ -68,8 +71,7 @@
             label="Descripción"
             outlined
             dense
-            counter
-            color="primary"
+            color="secondary"
             prepend-inner-icon="mdi-card-text-outline"
             autocomplete="off"
             no-resize
@@ -79,11 +81,18 @@
             v-model="taskModel.tags"
             label="Tags"
             required
+            color="secondary"
           ></v-text-field>
         </v-form>
       </v-card-text>
       <v-card-actions class="justify-end">
-        <v-btn text color="success" @click="sendTask()">Aceptar</v-btn>
+        <v-btn
+          text
+          color="success"
+          :loading="status.loadingCreateTask"
+          @click="sendTask()"
+          >Aceptar</v-btn
+        >
         <v-btn text color="error" @click="closeDialog()">Cerrar</v-btn>
       </v-card-actions>
     </v-card>
@@ -102,16 +111,35 @@ const Task = namespace("modules/task");
 export default class AddTask extends Vue {
   @Ref("form") readonly form!: VForm;
 
+  /*
+   Action obtenido del modulo de task
+   */
   @Task.Action
   private createTask!: (task: CreatedTask) => Promise<void>;
 
-  public taskModel = {} as CreatedTask;
+  /*
+   State obtenido del modulo de task
+   */
+  @Task.State("status")
+  private status!: any;
 
+  public taskModel = {} as CreatedTask;
+  public title = "To Do";
+  public isCompleted = 0;
+  public dialog = false;
+  public valid = true;
+  public menuDate = false;
+  //Variable para obtener la fecha actual
+  public date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+    .toISOString()
+    .substr(0, 10);
+  //Variable para no poder seleccionar días antes
+  public minDate = new Date(Date.now() - 8640000).toISOString().substr(0, 10);
   public rules = {
     required: (v: string): string | boolean => !!v || "Campo requerido",
-    requireda: (v: string): string | boolean => !!v || "c",
   };
 
+  //Mandar datos de la tarea para crearla
   async sendTask() {
     if ((this.$refs.form as Vue & { validate: () => boolean }).validate()) {
       this.taskModel.due_date = this.date;
@@ -123,12 +151,14 @@ export default class AddTask extends Vue {
     }
   }
 
+  //Cerrar dialogo y resetear errores de validación
   closeDialog() {
     this.form.resetValidation();
     this.resetForm();
     this.dialog = false;
   }
 
+  //Resetear formulario
   resetForm() {
     this.taskModel = {
       title: "",
@@ -139,16 +169,6 @@ export default class AddTask extends Vue {
       due_date: "",
     };
   }
-
-  public title = "To Do";
-  public isCompleted = 0;
-  public dialog = false;
-  public valid = true;
-  public menuDate = false;
-  public date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-    .toISOString()
-    .substr(0, 10);
-  public minDate = new Date(Date.now() - 8640000).toISOString().substr(0, 10);
 }
 </script>
 

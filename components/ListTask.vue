@@ -29,7 +29,7 @@
           indeterminate
           :size="120"
           :width="4"
-          color="primary"
+          color="secondary"
         >
         </v-progress-circular>
       </div>
@@ -50,21 +50,29 @@ const Task = namespace("modules/task");
 
 @Component
 export default class Tasks extends Vue {
+  //Si el arreglo orginal cambia se vuelven asignar los datos al tasksClone
   @Watch("tasks")
   onChildTask() {
-    console.log("Ento watch tasks");
-
     this.tasksClone = this.tasks.map((tasks) => {
       return { ...tasks, is_completed: tasks.is_completed === 1 ? 0 : 1 };
     });
   }
 
+  /*
+   Action obtenido del modulo de task
+   */
   @Task.Action
   private getTasks!: () => Promise<void>;
 
+  /*
+   Action obtenido del modulo de task
+   */
   @Task.State("taskList")
   private tasks!: ShortTask[];
 
+  /*
+   Getter obtenido del modulo de task
+   */
   @Task.Getter
   private isLoading!: boolean;
 
@@ -76,24 +84,15 @@ export default class Tasks extends Vue {
 
   async mounted() {
     await this.getTasks();
+    //Crear clone de las tareas
     this.tasksClone = this.tasks.map((tasks) => {
       return { ...tasks, is_completed: tasks.is_completed === 1 ? 0 : 1 };
     });
-    const hola = this.tasksClone.filter((isCompleted) => {
-      return isCompleted.is_completed === 0;
-    });
-    console.log(hola);
   }
 }
 </script>
 
 <style scoped>
-.scrollable {
-  overflow-y: auto;
-  height: auto;
-  /*  display: flex;  */
-}
-
 .progress-circular {
   height: 80vh;
   display: flex;

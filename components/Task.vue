@@ -35,6 +35,7 @@
                 <v-btn
                   text
                   color="success"
+                  :loading="status.loadingDeleteTask"
                   @click="
                     confirmDeleteTask(task.id);
                     dialog.value = false;
@@ -70,16 +71,26 @@ export default class OnlyTask extends Vue {
   })
   public task!: ShortTask;
 
+  /*
+   Actions obtenidos del modulo de task
+   */
   @Task.Action
   private deleteTask!: (TaskId: string) => Promise<void>;
 
   @Task.Action
   private putTask!: (putTask: PutTask) => Promise<void>;
 
+  /*
+   State obtenido del modulo de task
+   */
+  @Task.State("status")
+  private status!: any;
+
   public rules = {
     required: (v: string): string | boolean => !!v || "Campo requerido",
   };
 
+  //Mandar datos para actualizar si esta completa la tarea
   changeStatus(isCompleted: number, task: ShortTask) {
     const putTask: PutTask = {
       ...task,
@@ -90,12 +101,11 @@ export default class OnlyTask extends Vue {
     this.putTask(putTask);
   }
 
+  //Mandar id de la tarea a eliminar
   async confirmDeleteTask(taskId: string) {
     await this.deleteTask(taskId);
+    //Si el usuario se encuntra en la routa de la tarea a eliminar se regresa al index
     if (this.$route.path === "/" + taskId) {
-      console.log(this.$route.path);
-      console.log("/" + taskId);
-
       this.$router.replace("/");
     }
   }
