@@ -5,7 +5,7 @@
         <v-list class="scrollable">
           <v-list-item-group multiple>
             <Task v-for="task in notCompleted" :key="task.id" :task="task" />
-            <v-subheader>Completadas</v-subheader>
+            <v-subheader v-if="isCompleted.length > 0">Completadas</v-subheader>
             <Task v-for="task in isCompleted" :key="task.id" :task="task" />
           </v-list-item-group>
         </v-list>
@@ -39,7 +39,7 @@ export default class Tasks extends Vue {
   @Watch("tasks")
   onChildTask() {
     this.tasksClone = this.tasks.map((tasks) => {
-      return { ...tasks /* is_completed: tasks.is_completed === 1 ? 0 : 1  */ };
+      return { ...tasks };
     });
     this.isCompleted = this.tasksClone.filter((todo) => todo.is_completed);
     this.notCompleted = this.tasksClone.filter((todo) => !todo.is_completed);
@@ -76,11 +76,13 @@ export default class Tasks extends Vue {
     //Crear clone de las tareas
     this.tasksClone = this.tasks.map((tasks) => {
       return {
-        ...tasks /* , is_completed: tasks.is_completed === 1 ? 0 : 1  */,
+        ...tasks,
       };
     });
     this.isCompleted = this.tasksClone.filter((todo) => todo.is_completed);
     this.notCompleted = this.tasksClone.filter((todo) => !todo.is_completed);
+
+    console.log(this.isCompleted);
   }
 }
 </script>

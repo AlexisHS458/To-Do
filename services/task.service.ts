@@ -10,7 +10,7 @@ class TaskService {
     const responseTask = await window.$nuxt.$axios.$post("/tasks", {
       token: process.env.TOKEN_SECRET,
       title: task.title,
-      is_completed: task.is_completed /* === 1 ? 0 : 1 */,
+      is_completed: task.is_completed,
       due_date: task.due_date,
       comments: task.comments,
       description: task.description,
@@ -67,8 +67,6 @@ class TaskService {
    * @param {PutTask} task - Datos de la tarea
    */
   async putTask(task: PutTask) {
-    console.log(task.is_completed);
-
     const responsePutTask = await window.$nuxt.$axios.$put(
       "/tasks/" + task.id,
       null,
@@ -78,8 +76,7 @@ class TaskService {
         },
         params: {
           title: task.title,
-          /*  is_completed: task.is_completed === 0 ? 1 : 0,task.is_completed === 0 ? 1 : 0, */
-          is_completed: task.is_completed /*  === 1 ? 0 : 1 */,
+          is_completed: task.is_completed,
           due_date: task.due_date,
           comments: task.comments,
           description: task.description,
