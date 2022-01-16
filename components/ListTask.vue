@@ -4,23 +4,9 @@
       <v-card v-if="!isLoading" two-line height="100%">
         <v-list class="scrollable">
           <v-list-item-group multiple>
-            <template v-for="task in tasksClone">
-              <Task
-                v-if="task.is_completed === 0"
-                :key="task.id"
-                :task="task"
-              />
-            </template>
-          </v-list-item-group>
-          <v-subheader>Completadas</v-subheader>
-          <v-list-item-group multiple>
-            <template v-for="task in tasksClone">
-              <Task
-                v-if="task.is_completed === 1"
-                :key="task.id"
-                :task="task"
-              />
-            </template>
+            <Task v-for="task in notCompleted" :key="task.id" :task="task" />
+            <v-subheader>Completadas</v-subheader>
+            <Task v-for="task in isCompleted" :key="task.id" :task="task" />
           </v-list-item-group>
         </v-list>
       </v-card>
@@ -43,7 +29,6 @@ import { Watch } from "nuxt-property-decorator";
 import Vue from "vue";
 import Component from "vue-class-component";
 import { namespace } from "vuex-class";
-import { PutTask } from "~/models/putTask";
 import { ShortTask } from "~/models/shortTask";
 import { Task } from "~/models/Task";
 const Task = namespace("modules/task");
@@ -54,8 +39,10 @@ export default class Tasks extends Vue {
   @Watch("tasks")
   onChildTask() {
     this.tasksClone = this.tasks.map((tasks) => {
-      return { ...tasks, is_completed: tasks.is_completed === 1 ? 0 : 1 };
+      return { ...tasks /* is_completed: tasks.is_completed === 1 ? 0 : 1  */ };
     });
+    this.isCompleted = this.tasksClone.filter((todo) => todo.is_completed);
+    this.notCompleted = this.tasksClone.filter((todo) => !todo.is_completed);
   }
 
   /*
@@ -81,13 +68,19 @@ export default class Tasks extends Vue {
   };
 
   public tasksClone: ShortTask[] = [];
-
+  public isCompleted: ShortTask[] = [];
+  public notCompleted: ShortTask[] = [];
   async mounted() {
     await this.getTasks();
+
     //Crear clone de las tareas
     this.tasksClone = this.tasks.map((tasks) => {
-      return { ...tasks, is_completed: tasks.is_completed === 1 ? 0 : 1 };
+      return {
+        ...tasks /* , is_completed: tasks.is_completed === 1 ? 0 : 1  */,
+      };
     });
+    this.isCompleted = this.tasksClone.filter((todo) => todo.is_completed);
+    this.notCompleted = this.tasksClone.filter((todo) => !todo.is_completed);
   }
 }
 </script>

@@ -41,7 +41,7 @@ export default class TaskModule extends VuexModule {
 
   /**
    * Asignar mensaje que regresa el servidor
-   * @param {data} data - Recibe el nombre del mensaje de messages y el mesnaje
+   * @param {data} data - Recibe el nombre del mensaje de messages y el mensaje
    */
   @Mutation setMessage(data: { messageName: string; message: string }) {
     this.messages[data.messageName] = data.message;
@@ -66,7 +66,7 @@ export default class TaskModule extends VuexModule {
 
   /**
    * Asignar error que regresa el servidor
-   * @param {data} data - Recibe el nombre del error de erros y el mesnaje error
+   * @param {data} data - Recibe el nombre del error de erros y el mensaje error
    */
   @Mutation
   public setError(data: { errorName: string; message: string }): void {
@@ -121,12 +121,18 @@ export default class TaskModule extends VuexModule {
    * @param {Task} task - Infromación de la tarea que se va actualizar
    */
   @Mutation
-  public updateTask(task: Task) {
+  public updateTask(data: { task: Task; isCompleted: number }) {
+    const shortTask = {
+      id: data.task.id,
+      title: data.task.title,
+      is_completed: data.isCompleted,
+      due_date: data.task.due_date,
+    };
     if (this.taskList) {
-      const index = this.taskList.findIndex((task) => {
-        return task.id == task.id;
+      const index = this.taskList.findIndex((taskId) => {
+        return taskId.id == shortTask.id;
       });
-      Vue.set(this.taskList, index, task);
+      Vue.set(this.taskList, index, shortTask);
     }
   }
 
@@ -280,9 +286,13 @@ export default class TaskModule extends VuexModule {
       loadingName: "loadingPutTask",
       status: true,
     });
+
     return await TaskService.putTask(task)
       .then((data: any) => {
-        this.context.commit("updateTask", data.task);
+        this.context.commit("updateTask", {
+          task: data.task,
+          isCompleted: task.is_completed,
+        });
         this.context.commit("setLoading", {
           loadingName: "loadingPutTask",
           status: false,

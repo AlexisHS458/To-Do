@@ -158,6 +158,8 @@ export default class TaskClass extends Vue {
   //Actualizar tarea
   async updateTask() {
     if ((this.$refs.form as Vue & { validate: () => boolean }).validate()) {
+      console.log(this.taskUpdate);
+
       await this.putTask(this.taskUpdate);
     }
   }
