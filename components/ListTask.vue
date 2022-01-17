@@ -1,15 +1,20 @@
 <template>
   <v-row>
     <v-col cols="12">
-      <v-card v-if="!isLoading" two-line height="100%">
-        <v-list class="scrollable">
-          <v-list-item-group multiple>
-            <Task v-for="task in notCompleted" :key="task.id" :task="task" />
-            <v-subheader v-if="isCompleted.length > 0">Completadas</v-subheader>
-            <Task v-for="task in isCompleted" :key="task.id" :task="task" />
-          </v-list-item-group>
-        </v-list>
-      </v-card>
+      <div v-if="!isLoading">
+        <v-card v-if="tasksClone.length > 0" two-line height="100%">
+          <v-list class="scrollable">
+            <v-list-item-group multiple>
+              <Task v-for="task in notCompleted" :key="task.id" :task="task" />
+              <v-subheader v-if="isCompleted.length > 0"
+                >Completadas</v-subheader
+              >
+              <Task v-for="task in isCompleted" :key="task.id" :task="task" />
+            </v-list-item-group>
+          </v-list>
+        </v-card>
+        <h1 v-else class="text">No hay tareas</h1>
+      </div>
       <div v-else class="progress-circular">
         <v-progress-circular
           indeterminate
@@ -81,8 +86,6 @@ export default class Tasks extends Vue {
     });
     this.isCompleted = this.tasksClone.filter((todo) => todo.is_completed);
     this.notCompleted = this.tasksClone.filter((todo) => !todo.is_completed);
-
-    console.log(this.isCompleted);
   }
 }
 </script>
@@ -90,6 +93,14 @@ export default class Tasks extends Vue {
 <style scoped>
 .progress-circular {
   height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.text {
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;

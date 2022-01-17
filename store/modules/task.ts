@@ -133,6 +133,8 @@ export default class TaskModule extends VuexModule {
         return taskId.id == shortTask.id;
       });
       Vue.set(this.taskList, index, shortTask);
+
+      this.selectedTask = { ...data.task, is_completed: data.isCompleted };
     }
   }
 

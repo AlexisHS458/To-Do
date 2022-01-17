@@ -39,7 +39,7 @@
           <v-textarea
             label="Comentarios"
             v-model="taskUpdate.comments"
-            :placeholder="task.comments"
+            :placeholder="taskUpdate.comments"
             outlined
             dense
             color="secondary"
@@ -70,13 +70,16 @@
       </v-card-text>
       <v-card-actions class="justify-end flex-grow-0 flex-shrink-1">
         <v-btn
+          :disabled="!isVisibility"
           text
           color="success"
           :loading="status.loadingPutTask"
           @click="updateTask()"
           >Actualizar</v-btn
         >
-        <v-btn text color="error" @click="cancel()">Cancelar</v-btn>
+        <v-btn text color="error" :disabled="!isVisibility" @click="cancel()"
+          >Cancelar</v-btn
+        >
       </v-card-actions>
     </v-card>
   </div>
@@ -102,6 +105,11 @@ export default class TaskClass extends Vue {
   @Watch("$route.params.taskId")
   onChildChanged() {
     this.infoTask();
+  }
+
+  @Watch("task")
+  onChildTask() {
+    this.taskUpdate = { ...this.task };
   }
 
   @Ref("form") readonly form!: VForm;
@@ -130,8 +138,8 @@ export default class TaskClass extends Vue {
   @Task.Getter("isLoadingTask")
   private isLoadingTask!: boolean;
 
-  public taskUpdate = {} as Task;
   public visibility = false;
+  public taskUpdate = {} as Task;
   public menuDate = false;
   public valid = true;
   //Variable para no poder seleccionar días antes
@@ -143,6 +151,21 @@ export default class TaskClass extends Vue {
   //Obtener información de las tareas por primera vez
   async created() {
     await this.infoTask();
+  }
+
+  //Activar botones de actualizar y cancelar
+  get isVisibility() {
+    if (
+      this.taskUpdate.title !== this.task.title ||
+      this.taskUpdate.due_date !== this.task.due_date ||
+      this.taskUpdate.comments !== this.task.comments ||
+      this.taskUpdate.description !== this.task.description ||
+      this.taskUpdate.tags !== this.task.tags
+    ) {
+      return !this.visibility;
+    } else {
+      return false;
+    }
   }
 
   //Obtener las infromación de las tareas
