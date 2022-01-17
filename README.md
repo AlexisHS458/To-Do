@@ -20,4 +20,3 @@ $ npm run generate
 ## Demo
 
 Live: https://to-do-rouge.vercel.app/
-[Live](https://to-do-rouge.vercel.app/)
